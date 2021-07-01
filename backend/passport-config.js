@@ -7,7 +7,8 @@ function initializePassport(passport) {
       {
         clientID: process.env.LINKEDIN_CLIENT_ID,
         clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-        callbackURL: "http://127.0.0.1:3000/auth/linkedin/callback",
+        // callbackURL: `http://${process.env.HOSTNAME}:3000/auth/linkedin/callback`,
+        callbackURL: `http://10.0.2.2:3000/auth/linkedin/callback`,
         scope: ["r_emailaddress", "r_liteprofile"],
       },
       (accessToken, refreshToken, profile, done) => {
@@ -20,21 +21,34 @@ function initializePassport(passport) {
           //   if (user) {
           //     return done("User already exists", null);
           //   }
-          user = await User.create({
-            uid: profile.id,
-            firstName: profile.name.givenName,
-            lastName: profile.name.familyName,
-            image: profile.photos[1].value,
-            email: profile.emails[0].value,
-          });
-          return done(null, user);
+          //   user = await User.create({
+          //     uid: profile.id,
+          //     firstName: profile.name.givenName,
+          //     lastName: profile.name.familyName,
+          //     image: profile.photos[1].value,
+          //     email: profile.emails[0].value,
+          //   });
+          try {
+            const [user, created] = await User.findOrCreate({
+              where: { uid: profile.id },
+              defaults: {
+                firstName: profile.name.givenName,
+                lastName: profile.name.familyName,
+                image: profile.photos[1].value,
+                email: profile.emails[0].value,
+              },
+            });
+            return done(null, user);
+          } catch (error) {
+            return done(error, null);
+          }
         });
       }
     )
   );
 
   passport.serializeUser((user, done) => {
-    console.log("serialize: ", user)
+    // console.log("serialize: ", user);
     done(null, user.id);
   });
 
