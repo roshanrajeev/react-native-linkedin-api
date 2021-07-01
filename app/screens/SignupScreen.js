@@ -1,67 +1,53 @@
 import React from 'react'
-import { StyleSheet, Text, View, SafeAreaView, Platform, StatusBar, TextInput, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, StyleSheet, SafeAreaView, Platform, StatusBar, Image } from 'react-native'
 
-export default function SignupScreen({ navigation }) {
-    const [email, setEmail] = React.useState("")
-    const [password, setPassword] = React.useState("")
-
-    const checkLinkedinAuth = () => {
-        return true
-    }
-
-    const validate = () => {
-        const re = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
-        if(!re.test(email)){
-            Alert.alert("Invalid email")
-            return false
-        }
-        
-        if(password == ""){
-            Alert.alert("Invalid password")
-            return false
-        }
-
-        if(!checkLinkedinAuth()){
-            Alert.alert("Invalid email or password")
-            return false
-        }
-
-        return true
-    }
-
-    const submit = () => {
-        if(validate()){
-            navigation.navigate('Profile')
-        }
-    }
-
-    return (
+export default function SignupScreen({route, navigation}) {
+    // const {firstName, lastName, email, image} = route.params
+    return(
         <SafeAreaView style={styles.container}>
-            <TextInput placeholder="Email" style={[styles.inputField]} onChangeText={(text) => setEmail(text)}/>
-            <TextInput placeholder="Password" style={[styles.inputField]} secureTextEntry={true} onChangeText={(text) => setPassword(text)}/>
-            <TouchableOpacity style={styles.submitBtn} onPress={submit}>
-                <Text>Submit</Text>
-            </TouchableOpacity>
+            <View style={styles.header}>
+                <Text style={styles.title}>Profile</Text>
+                <Image source={{uri: 'https://randomuser.me/api/portraits/women/49.jpg'}} style={styles.userImage}/>
+                <Text style={styles.userName}>Sara O'Conner</Text>
+                <Text style={styles.userEmail}>sara@hotmail.com</Text>
+            </View>
+            <Text style={styles.footer}>Connected Via Linkedin</Text>
         </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
+    title: {
+        fontWeight: 'bold',
+        fontSize: 30,
+        marginBottom: 35
+    },
     container: {
         flex: 1,
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-        paddingHorizontal: 20
-    },
-    inputField: {
-        fontSize: 18,
-        borderBottomWidth: 1,
-        marginBottom: 15
-    },
-    submitBtn: {
-        width: 80,
-        height: 40,
-        backgroundColor: "orange",
+        paddingTop: (Platform.OS === 'android' ? StatusBar.currentHeight : 0) + 10,
+        justifyContent: 'space-between',
         alignItems: 'center',
-        justifyContent: 'center'
+    },
+    header: {
+        alignItems: 'center',
+    },
+    userImage: {
+        width: 150,
+        height: 150,
+        borderRadius: 150/2,
+        overflow: 'hidden',
+        marginBottom: 10
+    },
+    userName: {
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    userEmail: {
+        fontSize: 18,
+    },
+    footer: {
+        // alignSelf: 'flex-end'
+        marginBottom: 40,
+        color: 'rgba(0,0,0,0.4)'
     }
 })

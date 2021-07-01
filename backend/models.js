@@ -22,6 +22,9 @@ const User = sequelize.define(
     email: {
       type: DataTypes.STRING,
     },
+    accessToken: {
+      type: DataTypes.STRING,
+    }
   },
   {}
 );

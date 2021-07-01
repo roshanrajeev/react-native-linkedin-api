@@ -17,7 +17,7 @@ import {
   AppState,
 } from "react-native";
 
-// WebBrowser.maybeCompleteAuthSession();
+WebBrowser.maybeCompleteAuthSession();
 
 // const discovery = {
 //   authorizationEndpoint: "https://www.linkedin.com/oauth/v2/authorization",
@@ -26,42 +26,6 @@ import {
 
 export default function HomeScreen({ navigation }) {
   const [user, setUser] = React.useState({})
-
-//   const handleAuth = async () => {
-    // const clientId = "86nimnzj98zbg7";
-    // const callbackUrl = "https://auth.expo.io/@roshanrjv/linkedin-api";
-    // let redirectUrl = AuthSession.makeRedirectUri({
-    //     useProxy: true
-    // });
-    // let results = await AuthSession.startAsync({
-    //   authUrl: `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(
-    //     callbackUrl
-    //   )}&state=foobar&scope=r_liteprofile%20r_emailaddress`,
-    // });
-    // console.log(results);
-
-    // const [request, response, promptAsync] = useAuthRequest(
-    //     {
-    //         clientId: clientId,
-    //         scopes: ['r_liteprofile', '20r_emailaddress'],
-    //         usePKCE: false,
-    //         redirectUri: makeRedirectUri({
-    //             scheme: "myapp"
-    //         })
-    //     },
-    //     discovery
-    // )
-
-
-//   };
-
-  // const handleAuth = async () => {
-  //   const clientId = "86nimnzj98zbg7";
-  //   const callbackUrl = "https://auth.expo.io/@roshanrjv/linkedin-api";
-  //   const url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&state=foobar&scope=r_liteprofile%20r_emailaddress`
-  //   let result = await WebBrowser.openAuthSessionAsync(url);
-  //   console.log(result)
-  // };
 
   const handleRedirect = async (e) => {
     WebBrowser.dismissBrowser()
@@ -77,46 +41,32 @@ export default function HomeScreen({ navigation }) {
 
   const handleAuth = async () => {
     const redirectUrl = await Linking.getInitialURL()
-    console.log(redirectUrl)
+    // console.log(redirectUrl)
     const authUrl = `http://10.0.2.2:3000/auth/linkedin`
-    addLinkingListener()
+    // addLinkingListener()
     try {
       const authResult = await WebBrowser.openAuthSessionAsync(authUrl, redirectUrl)
-
-      console.log("%%%%%%%%%%%%%5555")
       if(authResult.type === 'success'){
-        console.log("@@@@@@@@@@@@@@")
         try {
-          const res = await fetch('http://10.0.2.2:3000/user', {
-            credentials: true
+          const res = Linking.parse(authResult.url)
+          const {accessToken, email, firstName, lastName, image} = res.queryParams
+          navigation.navigate('Profile', {
+            email,
+            firstName,
+            lastName,
+            image
           })
-          const data = await res.json()
-          console.log(data)
         } catch (error) {
           console.log(error)
         }
 
-        console.log("###########")
-
       }
-
       setUser(authResult)
     } catch (error) {
       console.log("Error: ", error)
     }
-    removeLinkingListener()
+    // removeLinkingListener()
   }
-
-
-  // const handleAuth = async () => {
-  //   const clientId = "86nimnzj98zbg7";
-  //   const callbackUrl = "https://auth.expo.io/@roshanrjv/linkedin-api";
-  //   const url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&state=foobar&scope=r_liteprofile%20r_emailaddress`
-    
-  //   const redirectURI = AuthSession.getRedirectUrl({useProxy: true});
-  //   const result = await AuthSession.startAsync({authUrl: url})
-  //   console.log(result)
-  // };
 
   return (
     <SafeAreaView style={styles.container}>

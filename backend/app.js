@@ -8,6 +8,7 @@ const passport = require("passport");
 const session = require("express-session");
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
+const querystring = require('querystring')
 
 const app = express();
 
@@ -29,7 +30,10 @@ app.use(
     secret: "keyboardcat",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }
+    cookie: {
+      secure: false,
+      maxAge: 3600000
+    }
   })
 );
 
@@ -38,37 +42,48 @@ app.use(passport.session());
 
 require("./db-config").sync();
 
-const isAuthenticated = (req, res, next) => {
-  // if(req.)
-}
+// const isAuthenticated = (req, res, next) => {
+//   if(req.isAuthenticated()){
+//     return next()
+//   }
+// }
 
-app.get("/user", (req, res) => {
-  console.log(req.cookies)
-  console.log(req.isAuthenticated())
-  console.log(req.session)
-  const user = req.user;
-  console.log(user);
-  res.json(user);
-});
 
 app.get(
   "/auth/linkedin",
-  passport.authenticate("linkedin", { state: "Some state" }),
-  (req, res) => {}
+  passport.authenticate("linkedin", { state: "Some state" })
 );
+
+let successRedirect
+if (process.env.HOSTNAME === 'localhost') {
+  successRedirect = '/user'
+} else {
+  successRedirect = "/auth/linkedin/redirect"
+}
 
 app.get(
   "/auth/linkedin/callback",
   passport.authenticate("linkedin", {
-    successRedirect: "/auth/linkedin/redirect",
+    successRedirect: successRedirect,
     // successRedirect: "/user",
     failureRedirect: "/login",
   })
 );
 
 app.get("/auth/linkedin/redirect", (req, res) => {
-  res.redirect("exp://192.168.100.39:19000");
+  const user = req.user
+  delete user.createdAt
+  delete user.updatedAt
+  const str = querystring.stringify(req.user)
+  res.redirect(`exp://192.168.100.5:19000?${str}`);
 });
 
+
+app.get("/user", (req, res) => {
+  if(!req.isAuthenticated()){
+    return res.json({"error": "unauthorized"})
+  }
+  res.json(user);
+});
 
 app.listen(3000);
